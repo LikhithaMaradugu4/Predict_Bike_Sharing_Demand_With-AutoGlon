@@ -1,24 +1,28 @@
 # Report: Predict Bike Sharing Demand with AutoGluon Solution
-#### NAME HERE
+#### Likhitha Maradugu
 
 ## Initial Training
 ### What did you realize when you tried to submit your predictions? What changes were needed to the output of the predictor to submit your results?
-When I initially tried to submit my predictions, I realized the format required by Kaggle was specific — the CSV needed to have only two columns: Id and count. The output of the AutoGluon predictor had extra columns, so I had to extract only the count column, and align it correctly with the Id column from the test set to meet the submission requirements.
+When I tried to submit my initial predictions to Kaggle, I realized that the submission format required only two columns: datetime and count. I had to adjust the output of the predictor to match this format by ensuring that the predicted values were aligned correctly with the datetime values from the test set.
+
 
 ### What was the top ranked model that performed?
 The top-ranked model in the initial training was typically an ensemble model (like WeightedEnsemble_L2) composed of base models such as LightGBM and RandomForest. AutoGluon automatically selected the best ensemble using validation performance.
 
 ## Exploratory data analysis and feature creation
 ### What did the exploratory analysis find and how did you add additional features?
-From the exploratory data analysis, I observed strong seasonal trends and time-based patterns in bike rentals. Features like hour, day, month, year, weekday, and weekend indicator were engineered from the datetime field. These features provided useful signals for the model to learn from.
+During EDA, I observed that the datetime column contained valuable temporal information that wasn’t being used by default. So, I extracted the hour, day, weekday, and month from it. Additionally, I converted several categorical features such as season, weather, and holiday into the category datatype to help tree-based models treat them correctly.
 
 ### How much better did your model preform after adding additional features and why do you think that is?
-Interestingly, after adding these new features, the model performance decreased slightly — the Kaggle score changed from 1.81002 to 1.81096. This could be due to overfitting, multicollinearity, or the model not needing those extra features in their raw form. It’s also possible that the added features increased noise rather than signal, indicating a need for more careful feature selection or encoding.
+After adding these new features, the Kaggle score improved dramatically — from 1.80356 to 0.61099. This is because the new features (especially hour and weekday) captured patterns in bike usage tied to time, which are crucial for demand prediction.
+
 
 
 ## Hyper parameter tuning
 ### How much better did your model preform after trying different hyper parameters?
-After hyperparameter tuning using AutoGluon's hyperparameter_tune_kwargs, the model showed a moderate but meaningful improvement in the Kaggle score, improving from 1.81096 to 1.44163 It helped select better configurations for models like LightGBM and CatBoost.
+After performing hyperparameter tuning using a defined search space and running multiple trials, the model improved further to 0.46817. While the jump wasn't as dramatic as after feature engineering, it still indicated a more optimized learning process.
+
+
 
 
 
@@ -35,10 +39,9 @@ Use external data sources such as weather or holiday calendars to enrich the dat
 
 
 ### Create a table with the models you ran, the hyperparameters modified, and the kaggle score.
-| model         | hpo1  | hpo2  | hpo3 | score |
-| ------------- | ------------------ | ---------------- | ---------------------- | ----- |
-| initial       | default| -    | -    | 0.81002 |
-| add\_features | default| -    | -    | 0.81096 |
+| model                 | hpo1                   | hpo2                         | hpo3                                              | score       |
+| initial                  | default               | -                                  | -                                                       | 0.81002 |
+| add\_features | default                | -                                  | -                                                       | 0.81096 |
 | hpo           | `auto` (AutoGluon) | time\_limits=600| search\_strategy=random | 0.4133 |
 
 ### Create a line plot showing the top model score for the three (or more) training runs during the project.
@@ -54,6 +57,8 @@ TODO: Replace the image below with your own.
 ![model_test_score.png](img/model_test_score.png)
 
 ## Summary
-This project gave me hands-on experience with AutoGluon, a powerful AutoML tool for tabular data. I learned the importance of submission formatting, feature engineering, and hyperparameter tuning. Surprisingly, not all added features helped; in fact, the model initially performed slightly worse after feature engineering. However, with proper tuning, the final model significantly outperformed the baseline. This experience has taught me how crucial it is to experiment, validate, and iterate intelligently.
+Initially, the model didn’t perform well due to the absence of feature engineering. After extracting time-based features and converting categorical columns, the model significantly improved. Finally, hyperparameter tuning helped fine-tune the best-performing models like GBM and XGB. One interesting observation was that although the numerical score on Kaggle improved in a steep fashion, the model leaderboard score fluctuated slightly — possibly due to overfitting to training folds or randomness in test distribution.
+
+
 
 
